@@ -50,6 +50,7 @@ services:
       - MONGODB_URI=mongodb+srv://hoanganh:hoanganh@cluster0.c0lkaku.mongodb.net/orders
       - RABBIT_MQ_URI=amqp://rabbitmq:5672
       - RABBIT_MQ_ORDERS_QUEUE=orders_queue
+      - JWT_SECRET=yJSDVpxKUQ1LSfrnrsLN6r6tmFd1i95I3zGXjpIryO8zoWg7fDmYEnyyCmtKFh2MFd4c7rFjN9wKsiwRXYKZ9BKJ5YHTByQi8Q4
 
   billing:
     build:
@@ -74,6 +75,7 @@ services:
       - MONGODB_URI=mongodb+srv://hoanganh:hoanganh@cluster0.c0lkaku.mongodb.net/billing
       - RABBIT_MQ_URI=amqp://rabbitmq:5672
       - RABBIT_MQ_BILLING_QUEUE=billing_queue
+      - JWT_SECRET=yJSDVpxKUQ1LSfrnrsLN6r6tmFd1i95I3zGXjpIryO8zoWg7fDmYEnyyCmtKFh2MFd4c7rFjN9wKsiwRXYKZ9BKJ5YHTByQi8Q4
 
   auth:
     build:

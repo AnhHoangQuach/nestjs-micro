@@ -1,20 +1,18 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { BillingService } from './billing.service';
 
 @Controller('billing')
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
 
-  @Post()
-  async createBilling(
-    @Body('orderId') orderId: string,
-    @Body('amount') amount: number,
-    @Body('status') status: string,
-  ) {
-    return this.billingService.createBilling(orderId, amount, status);
+  @EventPattern('billing.order_created')
+  async handleOrderCreated(@Payload() data: any) {
+    const { orderId, price, phoneNumber } = data;
+    await this.billingService.createBilling(orderId, price, 'PENDING', phoneNumber);
   }
 
-  @Get()
+  @EventPattern('billing.get_all')
   async getAllBillings() {
     return this.billingService.getAllBillings();
   }

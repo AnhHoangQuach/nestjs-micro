@@ -3,9 +3,12 @@ import { RmqModule, DatabaseModule } from '@app/common';
 import * as Joi from 'joi';
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Billing, BillingSchema } from './billing.schema';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '@app/common';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -20,8 +23,20 @@ import { Billing, BillingSchema } from './billing.schema';
     DatabaseModule,
     RmqModule,
     MongooseModule.forFeature([{ name: Billing.name, schema: BillingSchema }]),
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [BillingController],
-  providers: [BillingService],
+  providers: [
+    BillingService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class BillingModule {}

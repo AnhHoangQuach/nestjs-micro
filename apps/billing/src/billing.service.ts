@@ -9,8 +9,8 @@ export class BillingService {
     @InjectModel(Billing.name) private readonly billingModel: Model<Billing>,
   ) {}
 
-  async createBilling(orderId: string, amount: number, status: string) {
-    const billing = new this.billingModel({ orderId, amount, status });
+  async createBilling(orderId: string, amount: number, status: string, phoneNumber: string) {
+    const billing = new this.billingModel({ orderId, amount, status, phoneNumber });
     return billing.save();
   }
 
