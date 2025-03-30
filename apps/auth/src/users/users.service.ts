@@ -3,7 +3,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { UsersRepository } from './users.repository';
 import { CreateUserRequest } from './dto/create-user.request';
 import { User } from './schemas/user.schema';

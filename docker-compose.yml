@@ -1,4 +1,31 @@
 services:
+  gateway:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+      target: development
+    command: npm run start:dev gateway
+    ports:
+      - '3003:3003'
+    depends_on:
+      auth:
+        condition: service_healthy
+      orders:
+        condition: service_healthy
+      billing:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app-network
+    environment:
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+      - RABBIT_MQ_AUTH_QUEUE=auth
+      - RABBIT_MQ_BILLING_QUEUE=billing
+      - RABBIT_MQ_ORDERS_QUEUE=orders
   orders:
     build:
       context: .
@@ -8,17 +35,30 @@ services:
     env_file:
       - ./apps/orders/.env
     depends_on:
-      - mongodb-primary
-      - mongodb-secondary
-      - mongodb-arbiter
-      - billing
-      - auth
-      - rabbitmq
+      billing:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - '3000:3000'
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      - MONGODB_URI=mongodb+srv://hoanganh:hoanganh@cluster0.c0lkaku.mongodb.net/orders
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+      - RABBIT_MQ_AUTH_QUEUE=auth
+      - RABBIT_MQ_BILLING_QUEUE=billing
   billing:
     build:
       context: .
@@ -28,14 +68,27 @@ services:
     env_file:
       - ./apps/billing/.env
     depends_on:
-      - mongodb-primary
-      - mongodb-secondary
-      - mongodb-arbiter
-      - rabbitmq
-      - auth
+      rabbitmq:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    ports:
+      - '3002:3002'
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      - MONGODB_URI=mongodb+srv://hoanganh:hoanganh@cluster0.c0lkaku.mongodb.net/billing
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+      - RABBIT_MQ_AUTH_QUEUE=auth
   auth:
     build:
       context: .
@@ -47,51 +100,41 @@ services:
     env_file:
       - ./apps/auth/.env
     depends_on:
-      - mongodb-primary
-      - mongodb-secondary
-      - mongodb-arbiter
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb+srv://hoanganh:hoanganh@cluster0.c0lkaku.mongodb.net/auth
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+      - RABBIT_MQ_AUTH_QUEUE=auth
+      - JWT_SECRET=yJSDVpxKUQ1LSfrnrsLN6r6tmFd1i95I3zGXjpIryO8zoWg7fDmYEnyyCmtKFh2MFd4c7rFjN9wKsiwRXYKZ9BKJ5YHTByQi8Q4
+      - JWT_EXPIRATION=3600
+      - NODE_ENV=development
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-management
     ports:
       - '5672:5672'
-  mongodb-primary:
-    image: docker.io/bitnami/mongodb:5.0
-    environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
-      - MONGODB_REPLICA_SET_MODE=primary
-      - MONGODB_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
-    volumes:
-      - 'mongodb_master_data:/bitnami/mongodb'
-    ports:
-      - '27017:27017'
+      - '15672:15672'
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
-  mongodb-secondary:
-    image: docker.io/bitnami/mongodb:5.0
-    depends_on:
-      - mongodb-primary
-    environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
-      - MONGODB_REPLICA_SET_MODE=secondary
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
-
-  mongodb-arbiter:
-    image: docker.io/bitnami/mongodb:5.0
-    depends_on:
-      - mongodb-primary
-    environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
-      - MONGODB_REPLICA_SET_MODE=arbiter
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
-
-volumes:
-  mongodb_master_data:
-    driver: local
+networks:
+  app-network:
+    driver: bridge
