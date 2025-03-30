@@ -13,7 +13,7 @@ export class GatewayController {
   @Post('auth/register')
   async register(@Body() data: any) {
     const result = await firstValueFrom(
-      this.authClient.emit('auth.register', data)
+      this.authClient.send('auth.register', data)
     );
     return result;
   }
@@ -21,7 +21,7 @@ export class GatewayController {
   @Post('auth/login')
   async login(@Body() data: any) {
     const result = await firstValueFrom(
-      this.authClient.emit('auth.login', data)
+      this.authClient.send('auth.login', data)
     );
     return result;
   }
@@ -29,7 +29,7 @@ export class GatewayController {
   @Post('orders')
   async createOrder(@Body() data: any) {
     const result = await firstValueFrom(
-      this.ordersClient.emit('orders.create', data)
+      this.ordersClient.send('orders.create', data)
     );
     return result;
   }
@@ -37,7 +37,7 @@ export class GatewayController {
   @Get('orders')
   async getOrders() {
     const result = await firstValueFrom(
-      this.ordersClient.emit('orders.get_all', {})
+      this.ordersClient.send('orders.get_all', {})
     );
     return result;
   }
@@ -45,7 +45,7 @@ export class GatewayController {
   @Post('billing')
   async createBilling(@Body() data: any) {
     const result = await firstValueFrom(
-      this.billingClient.emit('billing.create', data)
+      this.billingClient.send('billing.create', data)
     );
     return result;
   }
@@ -53,7 +53,7 @@ export class GatewayController {
   @Get('billing')
   async getBillings() {
     const result = await firstValueFrom(
-      this.billingClient.emit('billing.get_all', {})
+      this.billingClient.send('billing.get_all', {})
     );
     return result;
   }

@@ -1,25 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Billing } from './billing.schema';
 
 @Injectable()
 export class BillingService {
-  private readonly logger = new Logger(BillingService.name);
-  private billings: any[] = [];
+  constructor(
+    @InjectModel(Billing.name) private readonly billingModel: Model<Billing>,
+  ) {}
 
-  getHello(): string {
-    return 'Hello World!';
+  async createBilling(orderId: string, amount: number, status: string) {
+    const billing = new this.billingModel({ orderId, amount, status });
+    return billing.save();
   }
 
-  bill(data: any) {
-    this.logger.log('Billing...', data);
-    this.billings.push({
-      ...data,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-    });
-    return this.billings[this.billings.length - 1];
-  }
-
-  getBillings() {
-    return this.billings;
+  async getAllBillings() {
+    return this.billingModel.find().exec();
   }
 }

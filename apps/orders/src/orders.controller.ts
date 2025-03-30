@@ -7,11 +7,6 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Get('health')
-  health() {
-    return { status: 'ok' };
-  }
-
   @EventPattern('orders.create')
   async createOrder(@Payload() request: CreateOrderRequest) {
     return this.ordersService.createOrder(request);
