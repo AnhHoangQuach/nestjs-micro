@@ -22,12 +22,9 @@ export class UsersService {
   }
 
   private async validateCreateUserRequest(request: CreateUserRequest) {
-    let user: User;
-    try {
-      user = await this.usersRepository.findOne({
-        email: request.email,
-      });
-    } catch (err) {}
+    const user = await this.usersRepository.findOne({
+      email: request.email,
+    });
 
     if (user) {
       throw new UnprocessableEntityException('Email already exists.');

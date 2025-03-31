@@ -13,28 +13,12 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @EventPattern('orders.create')
   async createOrder(@Payload() request: CreateOrderRequest) {
-    try {
-      return await this.ordersService.createOrder(request);
-    } catch (err) {
-      this.logger.error('Error in createOrder handler', err.message);
-      throw new RpcException({
-        message: err.response?.message || 'Failed to create order',
-        details: err.response?.details || err.message,
-      });
-    }
+    return this.ordersService.createOrder(request);
   }
 
   @UseGuards(JwtAuthGuard)
   @EventPattern('orders.get_all')
   async getOrders() {
-    try {
-      return await this.ordersService.getOrders();
-    } catch (err) {
-      this.logger.error('Error in getOrders handler', err.message);
-      throw new RpcException({
-        message: err.response?.message || 'Failed to fetch orders',
-        details: err.response?.details || err.message,
-      });
-    }
+    return this.ordersService.getOrders();
   }
 }

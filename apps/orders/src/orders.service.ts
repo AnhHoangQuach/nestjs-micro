@@ -29,24 +29,12 @@ export class OrdersService {
       await session.commitTransaction();
       return order;
     } catch (err) {
-      this.logger.error('Error creating order', err.message);
       await session.abortTransaction();
-      throw new InternalServerErrorException({
-        message: 'Failed to create order',
-        details: err.message,
-      });
     }
   }
 
   async getOrders() {
-    try {
-      return this.ordersRepository.find({});
-    } catch (err) {
-      this.logger.error('Error fetching orders', err.message);
-      throw new InternalServerErrorException({
-        message: 'Failed to fetch orders',
-        details: err.message,
-      });
-    }
+    const result = await this.ordersRepository.find({});
+    return result
   }
 }

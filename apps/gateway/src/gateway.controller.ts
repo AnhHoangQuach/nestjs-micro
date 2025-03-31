@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Inject, Headers, UnauthorizedException, Logger, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Logger, Post, UnauthorizedException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -14,28 +14,18 @@ export class GatewayController {
 
   @Post('auth/register')
   async register(@Body() data: any) {
-    try {
-      const result = await firstValueFrom(
-        this.authClient.send('auth.register', data)
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error during registration', err.message);
-      throw new BadRequestException(err.message || 'Failed to register');
-    }
+    const result = await firstValueFrom(
+      this.authClient.send('auth.register', data)
+    );
+    return result;
   }
 
   @Post('auth/login')
   async login(@Body() data: any) {
-    try {
-      const result = await firstValueFrom(
-        this.authClient.send('auth.login', data)
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error during login', err.message);
-      throw new BadRequestException(err.message || 'Failed to login');
-    }
+    const result = await firstValueFrom(
+      this.authClient.send('auth.login', data)
+    );
+    return result;
   }
 
   @Post('orders')
@@ -43,18 +33,13 @@ export class GatewayController {
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
-    try {
-      const result = await firstValueFrom(
-        this.ordersClient.send('orders.create', {
-          ...data,
-          Authorization: authHeader.split(' ')[1],
-        }),
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error creating order', err.message);
-      throw new BadRequestException(err.message || 'Failed to create order');
-    }
+    const result = await firstValueFrom(
+      this.ordersClient.send('orders.create', {
+        ...data,
+        Authorization: authHeader.split(' ')[1],
+      }),
+    );
+    return result;
   }
 
   @Get('orders')
@@ -62,17 +47,12 @@ export class GatewayController {
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
-    try {
-      const result = await firstValueFrom(
-        this.ordersClient.send('orders.get_all', {
-          Authorization: authHeader.split(' ')[1],
-        }),
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error fetching orders', err.message);
-      throw new BadRequestException(err.message || 'Failed to fetch orders');
-    }
+    const result = await firstValueFrom(
+      this.ordersClient.send('orders.get_all', {
+        Authorization: authHeader.split(' ')[1],
+      }),
+    );
+    return result;
   }
 
   @Post('billing')
@@ -80,18 +60,13 @@ export class GatewayController {
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
-    try {
-      const result = await firstValueFrom(
-        this.billingClient.send('billing.create', {
-          ...data,
-          Authorization: authHeader.split(' ')[1],
-        }),
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error creating billing', err.message);
-      throw new BadRequestException(err.message || 'Failed to create billing');
-    }
+    const result = await firstValueFrom(
+      this.billingClient.send('billing.create', {
+        ...data,
+        Authorization: authHeader.split(' ')[1],
+      }),
+    );
+    return result;
   }
 
   @Get('billing')
@@ -99,16 +74,11 @@ export class GatewayController {
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is required');
     }
-    try {
-      const result = await firstValueFrom(
-        this.billingClient.send('billing.get_all', {
-          Authorization: authHeader.split(' ')[1],
-        }),
-      );
-      return result;
-    } catch (err) {
-      this.logger.error('Error fetching billings', err.message);
-      throw new BadRequestException(err.message || 'Failed to fetch billings');
-    }
+    const result = await firstValueFrom(
+      this.billingClient.send('billing.get_all', {
+        Authorization: authHeader.split(' ')[1],
+      }),
+    );
+    return result;
   }
 }
