@@ -1,20 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Billing } from './billing.schema';
+import { BillingRepository } from 'apps/billing/src/billing.repository';
+import { CreateBillingRequest } from 'apps/billing/src/dto/create-billing.request';
 
 @Injectable()
 export class BillingService {
+
   constructor(
-    @InjectModel(Billing.name) private readonly billingModel: Model<Billing>,
+    private readonly billingRepository: BillingRepository,
   ) {}
 
-  async createBilling(orderId: string, amount: number, status: string, phoneNumber: string) {
-    const billing = new this.billingModel({ orderId, amount, status, phoneNumber });
-    return billing.save();
+  async createBilling(request: CreateBillingRequest) {
+    const result = await this.billingRepository.create({...request, status: 'PENDING'});
+    return result;
   }
 
   async getAllBillings() {
-    return this.billingModel.find().exec();
+    const result = await this.billingRepository.find({});
+    return result
   }
 }

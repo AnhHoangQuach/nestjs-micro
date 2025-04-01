@@ -1,16 +1,14 @@
+import { AuthModule, DatabaseModule, JwtAuthGuard } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { JwtModule } from '@nestjs/jwt';
-import * as Joi from 'joi';
-import { DatabaseModule, RmqModule, AuthModule } from '@app/common';
-import { OrdersController } from './orders.controller';
-import { OrdersService } from './orders.service';
-import { OrdersRepository } from './orders.repository';
-import { Order, OrderSchema } from './schemas/order.schema';
-import { BILLING_SERVICE } from './constants/services';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from '@app/common';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+import * as Joi from 'joi';
+import { OrdersController } from './orders.controller';
+import { OrdersRepository } from './orders.repository';
+import { OrdersService } from './orders.service';
+import { Order, OrderSchema } from './schemas/order.schema';
 
 @Module({
   imports: [
@@ -24,9 +22,6 @@ import { JwtAuthGuard } from '@app/common';
     }),
     DatabaseModule,
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
-    RmqModule.register({
-      name: BILLING_SERVICE,
-    }),
     AuthModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({

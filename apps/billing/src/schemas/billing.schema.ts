@@ -1,19 +1,16 @@
+import { AbstractDocument } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
 @Schema()
-export class Billing extends Document {
+export class Billing extends AbstractDocument {
   @Prop({ required: true })
   orderId: string;
 
   @Prop({ required: true })
-  amount: number;
-
-  @Prop({ required: true })
   status: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true })
+  phoneNumber: string;
 }
 
 export const BillingSchema = SchemaFactory.createForClass(Billing);

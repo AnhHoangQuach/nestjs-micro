@@ -4,12 +4,12 @@ import { BillingService } from './billing.service';
 
 @Controller('billing')
 export class BillingController {
+
   constructor(private readonly billingService: BillingService) {}
 
-  @EventPattern('billing.order_created')
+  @EventPattern('billing.create')
   async handleOrderCreated(@Payload() data: any) {
-    const { orderId, price, phoneNumber } = data;
-    await this.billingService.createBilling(orderId, price, 'PENDING', phoneNumber);
+    return this.billingService.createBilling(data);
   }
 
   @EventPattern('billing.get_all')
