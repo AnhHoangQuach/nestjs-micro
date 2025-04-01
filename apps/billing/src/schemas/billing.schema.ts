@@ -13,4 +13,4 @@ export class Billing extends AbstractDocument {
   phoneNumber: string;
 }
 
-export const BillingSchema = SchemaFactory.createForClass(Billing);
+export const BillingSchema = SchemaFactory.createForClass(Billing).set('timestamps', true);

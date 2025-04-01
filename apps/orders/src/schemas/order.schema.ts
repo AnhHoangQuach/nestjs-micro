@@ -10,4 +10,4 @@ export class Order extends AbstractDocument {
   phoneNumber: string;
 }
 
-export const OrderSchema = SchemaFactory.createForClass(Order);
+export const OrderSchema = SchemaFactory.createForClass(Order).set('timestamps', true);
